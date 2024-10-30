@@ -1,23 +1,21 @@
-﻿using Common.Messaging;
+﻿using FluentValidation;
+using FluentValidation.Results;
 
 namespace Common.Authorization;
 
-public abstract class Authorizer<TParameters>() :
+public abstract class Authorizer<TParameters> : AbstractValidator<TParameters>,
     IAuthorizer<TParameters>
 {
     public async Task<bool> AuthorizeAsync(TParameters parameters,
-        Func<AuthorizationResult, Task>? onAuthorizationFailed = null)
+        Func<ValidationResult, Task>? onAuthorizationFailed = null)
     {
-        var result = Authorize(parameters);
+        var result = await ValidateAsync(parameters);
 
-        if (result.IsAuthorized || onAuthorizationFailed is null)
-            return result.IsAuthorized;
+        if (result.IsValid || onAuthorizationFailed is null)
+            return result.IsValid;
 
         await onAuthorizationFailed.Invoke(result);
-        
-        return result.IsAuthorized;
-    }
 
-    protected abstract AuthorizationResult Authorize(
-        TParameters parameters);
+        return result.IsValid;
+    }
 }

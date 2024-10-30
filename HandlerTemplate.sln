@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HandlerTemplate", "HandlerT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{03EDA15E-9551-4A91-8297-29CE731821FB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTests", "UnitTests\UnitTests.csproj", "{7093A9F2-4239-4EBF-B5CD-BF09746C9B2A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{03EDA15E-9551-4A91-8297-29CE731821FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03EDA15E-9551-4A91-8297-29CE731821FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{03EDA15E-9551-4A91-8297-29CE731821FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7093A9F2-4239-4EBF-B5CD-BF09746C9B2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7093A9F2-4239-4EBF-B5CD-BF09746C9B2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7093A9F2-4239-4EBF-B5CD-BF09746C9B2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7093A9F2-4239-4EBF-B5CD-BF09746C9B2A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

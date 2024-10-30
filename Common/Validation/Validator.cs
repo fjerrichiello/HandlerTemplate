@@ -1,14 +1,14 @@
-﻿using Common.Messaging;
+﻿using FluentValidation;
 
 namespace Common.Validation;
 
-public abstract class Validator<TParameters> :
+public abstract class Validator<TParameters> : AbstractValidator<TParameters>,
     IValidator<TParameters>
 {
     public async Task<bool> ValidateAsync(TParameters parameters,
-        Func<ValidationResult, Task>? onValidationFailed = null)
+        Func<FluentValidation.Results.ValidationResult, Task>? onValidationFailed = null)
     {
-        var result = Validate(parameters);
+        var result = await base.ValidateAsync(parameters);
 
         if (result.IsValid || onValidationFailed is null)
             return result.IsValid;
@@ -17,7 +17,4 @@ public abstract class Validator<TParameters> :
 
         return result.IsValid;
     }
-
-    protected abstract ValidationResult Validate(
-        TParameters parameters);
 }
