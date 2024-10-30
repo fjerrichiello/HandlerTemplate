@@ -1,0 +1,6 @@
+@HandlerTemplate_HostAddress = http://localhost:5209
+
+GET {{HandlerTemplate_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
