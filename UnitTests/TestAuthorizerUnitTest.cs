@@ -1,5 +1,6 @@
 using Common.Authorization;
 using Common.Messaging;
+using HandlerTemplate.Commands;
 using HandlerTemplate.Events;
 using Moq;
 
@@ -27,7 +28,7 @@ public class TestAuthorizerUnitTest
 
         var mock = Mock.Of<IEventPublisher>();
 
-        var commandContainer = new MessageContainer<AddCommand, CommandMetadata>(new AddCommand(),
+        var commandContainer = new MessageContainer<AddCommand, CommandMetadata>(new AddCommand(null),
             new CommandMetadata([], String.Empty, Guid.NewGuid()), new MessageSource(Guid.NewGuid()));
 
         var result = await _testTestAuthorizer.AuthorizeAsync(testData, async result =>
@@ -42,4 +43,4 @@ public class TestAuthorizerUnitTest
     }
 }
 
-public record AddCommand() : Message;
+file record FailedEvent(string Reason) : Message;
