@@ -18,16 +18,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/testAuth", (IAuthorizer<TestData> auth) =>
+app.MapGet("/testAuth", async (IAuthorizer<TestData> auth) =>
     {
-       
+        var testData = new TestData(null);
+        await auth.AuthorizeAsync(testData);
     })
-    .WithName("GetWeatherForecast")
+    .WithName("TestAuth")
     .WithOpenApi();
 
 app.Run();

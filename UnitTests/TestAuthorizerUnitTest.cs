@@ -27,14 +27,19 @@ public class TestAuthorizerUnitTest
 
         var mock = Mock.Of<IEventPublisher>();
 
+        var commandContainer = new MessageContainer<AddCommand, CommandMetadata>(new AddCommand(),
+            new CommandMetadata([], String.Empty, Guid.NewGuid()), new MessageSource(Guid.NewGuid()));
+
         var result = await _testTestAuthorizer.AuthorizeAsync(testData, async result =>
         {
-            await mock.PublishAsync(new FailedEvent(string.Join(", ",
+            await mock.PublishAsync(commandContainer, new FailedEvent(string.Join(", ",
                 result.Errors.Select(x => $"{x.PropertyName}: {x.ErrorMessage}"))));
         });
 
         Assert.False(result);
 
-        Mock.Get(mock).Verify(x => x.PublishAsync(It.IsAny<FailedEvent>()), Times.Once);
+        Mock.Get(mock).Verify(x => x.PublishAsync(commandContainer, It.IsAny<FailedEvent>()), Times.Once);
     }
 }
+
+public record AddCommand() : Message;
