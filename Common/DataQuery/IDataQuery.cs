@@ -2,10 +2,10 @@
 
 namespace Common.DataQuery;
 
-public interface IDataQuery<TMessage, TMetadata>
+public interface IDataQuery<TMessage, TMetadata, TUnverified>
     where TMessage : Message
     where TMetadata : MessageMetadata
 {
-    Task<TUnverified> GetDataAsync<TUnverified>(
+    Task<TUnverified> GetDataAsync(
         MessageContainer<TMessage, TMetadata> container);
 }

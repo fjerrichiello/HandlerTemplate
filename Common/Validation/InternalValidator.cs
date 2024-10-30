@@ -2,8 +2,8 @@
 
 namespace Common.Validation;
 
-public abstract class Validator<TParameters> : AbstractValidator<TParameters>,
-    IValidator<TParameters>
+public abstract class InternalValidator<TParameters> : AbstractValidator<TParameters>,
+    IInternalValidator<TParameters>
 {
     public async Task<bool> ValidateAsync(TParameters parameters,
         Func<FluentValidation.Results.ValidationResult, Task>? onValidationFailed = null)

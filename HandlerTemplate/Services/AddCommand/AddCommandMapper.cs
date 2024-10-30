@@ -6,6 +6,8 @@ public class AddCommandMapper : IMapper<AddCommandUnverifiedData, AddCommandVeri
 {
     public AddCommandVerifiedData Map(AddCommandUnverifiedData input)
     {
-        throw new NotImplementedException();
+        ArgumentNullException.ThrowIfNull(input.Value1);
+
+        return new AddCommandVerifiedData(input.Value1.Value);
     }
 }

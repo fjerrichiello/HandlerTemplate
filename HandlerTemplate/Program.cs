@@ -1,4 +1,7 @@
-using Common.Authorization;
+using Common;
+using Common.Messaging;
+using HandlerTemplate.Commands;
+using HandlerTemplate.Services.AddCommand;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddCommandHandler));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -18,14 +22,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/testAuth", async (IAuthorizer<TestData> auth) =>
+app.MapGet("/TestHandler", async (IMessageContainerHandler<AddCommand, CommandMetadata> handler) =>
     {
-        var testData = new TestData(null);
-        await auth.AuthorizeAsync(testData);
+        var messageContainer = new MessageContainer<AddCommand, CommandMetadata>(new AddCommand(4),
+            new CommandMetadata([], string.Empty, Guid.NewGuid()), new MessageSource(Guid.NewGuid()));
+
+        await handler.HandleAsync(messageContainer);
     })
     .WithName("TestAuth")
     .WithOpenApi();
-
+//
 app.Run();
 
 namespace HandlerTemplate

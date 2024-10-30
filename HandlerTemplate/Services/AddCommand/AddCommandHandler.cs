@@ -7,7 +7,7 @@ using HandlerTemplate.Events.AddCommand;
 namespace HandlerTemplate.Services.AddCommand;
 
 public class AddCommandHandler(
-    IDataQuery<Commands.AddCommand, CommandMetadata> _dataQuery,
+    IDataQuery<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData> _dataQuery,
     IVerifier<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData, AddCommandVerifiedData> _verifier,
     IProcessor<Commands.AddCommand, CommandMetadata, AddCommandVerifiedData> _processor,
     IEventPublisher _eventPublisher)
@@ -17,7 +17,7 @@ public class AddCommandHandler(
     {
         try
         {
-            var unverifiedData = await _dataQuery.GetDataAsync<AddCommandUnverifiedData>(container);
+            var unverifiedData = await _dataQuery.GetDataAsync(container);
 
             var verifiedData = await _verifier.VerifyAsync(container, unverifiedData);
 

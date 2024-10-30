@@ -6,7 +6,9 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-      <PackageReference Include="FluentValidation" Version="11.10.0" />
+        <PackageReference Include="FluentValidation" Version="11.10.0"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1"/>
+        <PackageReference Include="Dumpify" Version="0.6.6"/>
     </ItemGroup>
 
 </Project>

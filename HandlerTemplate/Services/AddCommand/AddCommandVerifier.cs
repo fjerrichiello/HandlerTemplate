@@ -9,7 +9,7 @@ namespace HandlerTemplate.Services.AddCommand;
 
 public class AddCommandVerifier(
     IAuthorizer<AddCommandUnverifiedData> _authorizer,
-    IValidator<AddCommandUnverifiedData> _validator,
+    IInternalValidator<AddCommandUnverifiedData> _validator,
     IEventPublisher _eventPublisher,
     IMapper<AddCommandUnverifiedData, AddCommandVerifiedData> _mapper)
     : Verifier<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData, AddCommandVerifiedData>(_mapper)

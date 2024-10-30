@@ -3,11 +3,13 @@ using Common.Messaging;
 
 namespace HandlerTemplate.Services.AddCommand;
 
-public class AddCommandDataQuery : DataQuery<Commands.AddCommand, CommandMetadata>
+public class AddCommandDataQuery : DataQuery<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData>
 {
-    protected override async Task<TUnverified> GetDataInternalAsync<TUnverified>(
+    protected override async Task<AddCommandUnverifiedData
+    > GetDataInternalAsync(
         MessageContainer<Commands.AddCommand, CommandMetadata> container)
     {
-        throw new NotImplementedException();
+        await Task.Delay(1000);
+        return new AddCommandUnverifiedData(container.Message.Value1);
     }
 }

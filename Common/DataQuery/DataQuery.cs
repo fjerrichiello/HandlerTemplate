@@ -3,17 +3,17 @@
 namespace Common.DataQuery;
 
 public abstract class
-    DataQuery<TMessage, TMetadata> :
+    DataQuery<TMessage, TMetadata, TUnverified> :
     IDataQuery<TMessage,
-        TMetadata>
+        TMetadata, TUnverified>
     where TMessage : Message
     where TMetadata : MessageMetadata
 {
-    public async Task<TUnverified> GetDataAsync<TUnverified>(MessageContainer<TMessage, TMetadata> container)
+    public async Task<TUnverified> GetDataAsync(MessageContainer<TMessage, TMetadata> container)
     {
-        return await GetDataInternalAsync<TUnverified>(container);
+        return await GetDataInternalAsync(container);
     }
 
-    protected abstract Task<TUnverified> GetDataInternalAsync<TUnverified>(
+    protected abstract Task<TUnverified> GetDataInternalAsync(
         MessageContainer<TMessage, TMetadata> container);
 }
