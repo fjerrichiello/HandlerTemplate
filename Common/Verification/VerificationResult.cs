@@ -2,7 +2,13 @@
 
 public class VerificationResult<TResult>
 {
-    public bool Success { get; private set; } = true;
+    public bool Success { get; private set; }
 
-    public TResult SuccessResult { get; set; }
+    public TResult? SuccessResult { get; private set; }
+
+    public void SetResult(TResult successResult)
+    {
+        Success = true;
+        SuccessResult = successResult;
+    }
 }

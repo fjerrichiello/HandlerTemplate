@@ -1,16 +1,27 @@
-﻿namespace Common.Verification;
+﻿using Common.Mappers;
+
+namespace Common.Verification;
 
 public abstract class
-    Verifier<TUnverified, TVerified> :
+    Verifier<TUnverified, TVerified>(IMapper<TUnverified, TVerified> _mapper) :
     IVerifier<TUnverified,
         TVerified>
 {
     public async Task<VerificationResult<TVerified>> VerifyAsync(
         TUnverified data)
     {
-        return await VerifyInternalAsync(data);
+        var result = await VerifyInternalAsync(data);
+
+        var verificationResult = new VerificationResult<TVerified>();
+
+        if (result)
+        {
+            verificationResult.SetResult(_mapper.Map(data));
+        }
+
+        return verificationResult;
     }
 
-    protected abstract Task<VerificationResult<TVerified>> VerifyInternalAsync(
+    protected abstract Task<bool> VerifyInternalAsync(
         TUnverified data);
 }
