@@ -2,22 +2,19 @@
 
 namespace Common.Authorization;
 
-public abstract class Authorizer<TParameters>(IEventPublisher _eventPublisher) :
+public abstract class Authorizer<TParameters>() :
     IAuthorizer<TParameters>
 {
-    public async Task<bool> AuthorizeAsync<TFailedEvent>(TParameters parameters)
-        where TFailedEvent : FailureMessage, new()
+    public async Task<bool> AuthorizeAsync(TParameters parameters,
+        Func<AuthorizationResult, Task>? onAuthorizationFailed = null)
     {
         var result = Authorize(parameters);
 
-        if (!result.IsAuthorized)
-        {
-            await _eventPublisher.PublishAsync(new TFailedEvent
-            {
-                Reason = result.ErrorMessages
-            });
-        }
+        if (result.IsAuthorized || onAuthorizationFailed is null)
+            return result.IsAuthorized;
 
+        await onAuthorizationFailed.Invoke(result);
+        
         return result.IsAuthorized;
     }
 

@@ -2,21 +2,18 @@
 
 namespace Common.Validation;
 
-public abstract class Validator<TParameters>(IEventPublisher _eventPublisher) :
+public abstract class Validator<TParameters> :
     IValidator<TParameters>
 {
-    public async Task<bool> ValidateAsync<TFailedEvent>(TParameters parameters)
-        where TFailedEvent : FailureMessage, new()
+    public async Task<bool> ValidateAsync(TParameters parameters,
+        Func<ValidationResult, Task>? onValidationFailed = null)
     {
         var result = Validate(parameters);
 
-        if (!result.IsValid)
-        {
-            await _eventPublisher.PublishAsync(new TFailedEvent
-            {
-                Reason = result.ErrorMessages
-            });
-        }
+        if (result.IsValid || onValidationFailed is null)
+            return result.IsValid;
+
+        await onValidationFailed.Invoke(result);
 
         return result.IsValid;
     }
