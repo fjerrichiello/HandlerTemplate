@@ -10,7 +10,7 @@ public class
     public async Task<DataAddedEvent> ProcessAsync(MessageContainer<Commands.AddCommand, CommandMetadata> container,
         AddCommandVerifiedData data)
     {
-        await Task.Delay(5000);
+        await Task.Delay(1000);
         return new DataAddedEvent();
     }
 }
