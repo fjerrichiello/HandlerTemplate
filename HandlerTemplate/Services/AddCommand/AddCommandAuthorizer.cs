@@ -1,4 +1,5 @@
 ﻿using Common.Authorization;
+using Common.Authorization.Standard;
 using Common.Messaging;
 using FluentValidation;
 using HandlerTemplate.Events.AddCommand;
@@ -13,6 +14,13 @@ public class AddCommandAuthorizer : Authorizer<Commands.AddCommand, CommandMetad
         RuleFor(x => x.UnverifiedData.Value1)
             .GreaterThan(0);
     }
+
+    public override IEnumerable<RuleSet> RuleSets { get; set; } =
+    [
+        Common.Authorization.Standard.RuleSet.HasEffectiveMemberPermissions,
+        Common.Authorization.Standard.RuleSet.HasEffectiveNonMemberPermissions,
+        Common.Authorization.Standard.RuleSet.HasNonEffectiveMemberPermissions
+    ];
 
     public override AddCommandAuthorizationFailedEvent CreateFailedEvent(
         MessageContainer<Commands.AddCommand, CommandMetadata> container, AuthorizationResult result)

@@ -35,7 +35,6 @@ public abstract class
             }
 
             var validationResult = await _validator.ValidateAsync(container, unverifiedData);
-
             if (!validationResult.IsValid)
             {
                 await _eventPublisher.PublishAsync(container,
