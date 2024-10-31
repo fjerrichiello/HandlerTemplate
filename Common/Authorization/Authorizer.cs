@@ -1,6 +1,6 @@
 ﻿using Common.Authorization.Standard;
 using Common.Messaging;
-using Common.Validation;
+using Dumpify;
 using FluentValidation;
 using FluentValidation.Results;
 
@@ -20,8 +20,14 @@ public abstract class Authorizer<TMessage, TMetadata, TParameters, TFailedEvent>
     {
         var authorizationResult = new AuthorizationResult();
 
+        var member = new Member(Guid.NewGuid(), MemberType.Member, true, true, true,
+            DateOnly.FromDateTime(DateTime.UtcNow));
+
+        var test = new StandardAuthorizerParameters(member, ["MSA"], [],
+            DateOnly.FromDateTime(DateTime.UtcNow));
+
         var defaultAuthorizationResult = RuleSets.Count() != 0
-            ? RuleSets.ValidateRuleSets(new StandardAuthorizerParameters(new Member(), [], [], new DateOnly()))
+            ? RuleSets.ValidateRuleSets(test)
             : new ValidationResult();
 
         var validationResult =
@@ -29,10 +35,12 @@ public abstract class Authorizer<TMessage, TMetadata, TParameters, TFailedEvent>
                 new MessageAuthorizerParameters<TMessage, TMetadata, TParameters>(container, parameters));
 
         var combinedValidationResult = new ValidationResult([defaultAuthorizationResult, validationResult]);
+        if (combinedValidationResult.IsValid)
+        {
+            return new AuthorizationResult();
+        }
 
-
-        authorizationResult.AddError(string.Join(", ",
-            combinedValidationResult.Errors.Select(error => error.ErrorMessage)));
+        authorizationResult.AddError("User is not authorized to do this action.");
         return authorizationResult;
     }
 

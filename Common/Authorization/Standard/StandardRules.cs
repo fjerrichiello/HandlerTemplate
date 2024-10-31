@@ -9,13 +9,31 @@ public static class AuthorizerStandards
         StandardAuthorizerParameters authorizerParameters)
     {
         var standardAuthorizer = new StandardAuthorizer();
-        var results = ruleSets.Select(ruleSet =>
-            standardAuthorizer.Validate(authorizerParameters,
-                options => options.IncludeRuleSets(ruleSet.GetRules().ToArray()))).ToList();
+        List<ValidationResult> results = [];
+        foreach (var ruleSet in ruleSets)
+        {
+            var result = standardAuthorizer.Validate(authorizerParameters,
+                options => options.IncludeRuleSets(ruleSet.GetRules().ToArray()));
 
-        return results.Any(x => x.IsValid)
-            ? results.First(x => x.IsValid)
-            : new ValidationResult(results.Where(x => !x.IsValid));
+            if (!result.IsValid)
+            {
+                results.Add(result);
+                continue;
+            }
+
+            var rolesResults =
+                ruleSet.GetRoles().Select(rule => standardAuthorizer.Validate(authorizerParameters,
+                    options => options.IncludeRuleSets(rule))).ToList();
+
+            if (rolesResults.Any(x => x.IsValid))
+            {
+                break;
+            }
+
+            results.Add(new ValidationResult(rolesResults));
+        }
+
+        return new ValidationResult(results);
     }
 
     public static IEnumerable<string> GetRules(this IEnumerable<RuleSet> ruleSets)
@@ -32,6 +50,14 @@ public static class AuthorizerStandards
         _ => throw new ArgumentOutOfRangeException()
     };
 
+    public static IEnumerable<string> GetRoles(this RuleSet ruleSet) => ruleSet switch
+    {
+        RuleSet.HasEffectiveMemberPermissions => RuleSets.HasAnyRole,
+        RuleSet.HasEffectiveNonMemberPermissions => RuleSets.HasInternalRole,
+        RuleSet.HasNonEffectiveMemberPermissions => RuleSets.HasExternalRole,
+        _ => throw new ArgumentOutOfRangeException()
+    };
+
     public static class RuleSets
     {
         public static IEnumerable<string> HasInternalRole = [Rules.IsVCA, Rules.IsTCA, Rules.IsSuperAdmin];
@@ -41,13 +67,13 @@ public static class AuthorizerStandards
         public static IEnumerable<string> HasAnyRole = [..HasInternalRole, ..HasExternalRole];
 
         public static IEnumerable<string> HasEffectiveMemberPermissions =
-            [Rules.IsMemberEffective, Rules.IsMember, Rules.HasOneAndTwoSigned, ..HasAnyRole];
+            [Rules.IsMemberEffective, Rules.IsMember, Rules.HasOneAndTwoSigned];
 
         public static IEnumerable<string> HasNonEffectiveMemberPermissions =
-            [Rules.IsMemberIneffective, Rules.IsMember, Rules.HasOneAndTwoSigned, ..HasInternalRole];
+            [Rules.IsMemberIneffective, Rules.IsMember, Rules.HasOneAndTwoSigned];
 
         public static IEnumerable<string> HasEffectiveNonMemberPermissions =
-            [Rules.IsMemberEffective, Rules.IsMemberServicer, Rules.HasThreeSigned, ..HasExternalRole];
+            [Rules.IsMemberEffective, Rules.IsMemberServicer, Rules.HasThreeSigned];
     }
 
     public static class Rules
