@@ -1,20 +1,20 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
 
 namespace Common.Validation;
 
-public abstract class InternalValidator<TParameters> : AbstractValidator<TParameters>,
-    IInternalValidator<TParameters>
+public abstract class InternalValidator<TParameters, TFailedEvent> : AbstractValidator<TParameters>,
+    IInternalValidator<TParameters, TFailedEvent>
 {
-    public async Task<bool> ValidateAsync(TParameters parameters,
-        Func<FluentValidation.Results.ValidationResult, Task>? onValidationFailed = null)
+    public async Task<ValidationResult> ValidateAsync(TParameters parameters)
     {
-        var result = await base.ValidateAsync(parameters);
-
-        if (result.IsValid || onValidationFailed is null)
-            return result.IsValid;
-
-        await onValidationFailed.Invoke(result);
-
-        return result.IsValid;
+        return await base.ValidateAsync(parameters);
     }
+
+    public TFailedEvent CreateFailedEvent(ValidationResult result)
+    {
+        return CreateFailedEventInternal(result);
+    }
+
+    protected abstract TFailedEvent CreateFailedEventInternal(ValidationResult result);
 }

@@ -1,9 +1,11 @@
-﻿using Common.Messaging;
+﻿using FluentValidation.Results;
 
 namespace Common.Validation;
 
-public interface IInternalValidator<in TParameters>
+public interface IInternalValidator<in TParameters, out TFailedEvent>
 {
-    Task<bool> ValidateAsync(
-        TParameters parameters, Func<FluentValidation.Results.ValidationResult, Task>? onValidationFailed = null);
+    Task<ValidationResult> ValidateAsync(
+        TParameters parameters);
+
+    TFailedEvent CreateFailedEvent(ValidationResult result);
 }

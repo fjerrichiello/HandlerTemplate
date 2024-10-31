@@ -8,27 +8,10 @@ using HandlerTemplate.Events.AddCommand;
 namespace HandlerTemplate.Services.AddCommand;
 
 public class AddCommandVerifier(
-    IAuthorizer<AddCommandUnverifiedData> _authorizer,
-    IInternalValidator<AddCommandUnverifiedData> _validator,
-    IEventPublisher _eventPublisher,
-    IMapper<AddCommandUnverifiedData, AddCommandVerifiedData> _mapper)
-    : Verifier<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData, AddCommandVerifiedData>(_mapper)
-{
-    protected override async Task<bool> VerifyInternalAsync(
-        MessageContainer<Commands.AddCommand, CommandMetadata> container, AddCommandUnverifiedData data)
-    {
-        var authResult = await _authorizer.AuthorizeAsync(data,
-            async result => await _eventPublisher.PublishAsync(container,
-                new AddCommandAuthorizationFailedEvent(string.Join(", ",
-                    result.Errors.Select(x => $"{x.PropertyName}: {x.ErrorMessage}").ToList()))));
-
-        var validationResult = await _validator.ValidateAsync(data,
-            async result => await _eventPublisher.PublishAsync(
-                container,
-                new AddCommandValidationFailedEvent(string.Join(", ",
-                    result.Errors.Select(x => $"{x.PropertyName}: {x.ErrorMessage}").ToList()))));
-
-
-        return authResult && validationResult;
-    }
-}
+    IAuthorizer<AddCommandUnverifiedData, AddCommandAuthorizationFailedEvent> _authorizer,
+    IInternalValidator<AddCommandUnverifiedData, AddCommandValidationFailedEvent> _validator,
+    IMapper<AddCommandUnverifiedData, AddCommandVerifiedData> _mapper,
+    IEventPublisher _eventPublisher)
+    : ConventionalVerifier<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData, AddCommandVerifiedData,
+        AddCommandAuthorizationFailedEvent, AddCommandValidationFailedEvent>(_authorizer, _validator, _mapper,
+        _eventPublisher);

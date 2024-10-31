@@ -17,8 +17,8 @@ public static class Registration
     private static readonly Type GenericMessageContainerHandlerType = typeof(IMessageContainerHandler<,>);
     private static readonly Type GenericDataQueryType = typeof(IDataQuery<,,>);
     private static readonly Type GenericVerifierType = typeof(IVerifier<,,,>);
-    private static readonly Type GenericAuthorizerType = typeof(IAuthorizer<>);
-    private static readonly Type GenericValidatorType = typeof(IInternalValidator<>);
+    private static readonly Type GenericAuthorizerType = typeof(IAuthorizer<,>);
+    private static readonly Type GenericValidatorType = typeof(IInternalValidator<,>);
     private static readonly Type GenericMapperType = typeof(IMapper<,>);
     private static readonly Type GenericProcessorType = typeof(IProcessor<,,>);
 

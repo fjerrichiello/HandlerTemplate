@@ -3,8 +3,11 @@ using FluentValidation.Results;
 
 namespace Common.Authorization;
 
-public interface IAuthorizer<in TParameters>
+public interface IAuthorizer<in TParameters, out TFailedEvent>
 {
-    Task<bool> AuthorizeAsync(
-        TParameters parameters, Func<ValidationResult, Task>? onAuthorizationFailed = null);
+    Task<ValidationResult> AuthorizeAsync(
+        TParameters parameters);
+
+    TFailedEvent CreateFailedEvent(
+        ValidationResult result);
 }

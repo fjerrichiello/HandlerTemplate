@@ -1,14 +1,18 @@
 ﻿namespace Common.Verification;
 
-public class VerificationResult<TResult>
+public record VerificationResult<TResult>
 {
-    public bool Success { get; private set; }
+    public VerificationResult()
+    {
+    }
 
-    public TResult? SuccessResult { get; private set; }
-
-    public void SetResult(TResult successResult)
+    public VerificationResult(TResult result)
     {
         Success = true;
-        SuccessResult = successResult;
+        SuccessResult = result;
     }
+
+    public bool Success { get; }
+
+    public TResult? SuccessResult { get; }
 }

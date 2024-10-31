@@ -4,7 +4,8 @@ using Common.Messaging;
 namespace Common.Verification;
 
 public abstract class
-    Verifier<TMessage, TMetadata, TUnverified, TVerified>(IMapper<TUnverified, TVerified> _mapper) :
+    Verifier<TMessage, TMetadata, TUnverified, TVerified>(
+        IMapper<TUnverified, TVerified> _mapper) :
     IVerifier<TMessage, TMetadata, TUnverified,
         TVerified>
     where TMessage : Message
@@ -15,14 +16,14 @@ public abstract class
     {
         var result = await VerifyInternalAsync(container, data);
 
-        var verificationResult = new VerificationResult<TVerified>();
 
         if (result)
         {
-            verificationResult.SetResult(_mapper.Map(data));
+            return new VerificationResult<TVerified>(_mapper.Map(data));
         }
 
-        return verificationResult;
+        return new VerificationResult<TVerified>();
+
     }
 
     protected abstract Task<bool> VerifyInternalAsync(MessageContainer<TMessage, TMetadata> container,
