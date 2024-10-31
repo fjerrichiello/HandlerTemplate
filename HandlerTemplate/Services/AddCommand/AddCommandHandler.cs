@@ -1,15 +1,21 @@
-﻿using Common.DataQuery;
+﻿using Common.Authorization;
+using Common.DataFactory;
 using Common.Messaging;
 using Common.Processors;
-using Common.Verification;
+using Common.Validation;
 using HandlerTemplate.Events.AddCommand;
+using AddCommandMessage = HandlerTemplate.Commands.AddCommand;
 
 namespace HandlerTemplate.Services.AddCommand;
 
 public class AddCommandHandler(
-    IDataQuery<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData> _dataQuery,
-    IVerifier<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData, AddCommandVerifiedData> _verifier,
-    IProcessor<Commands.AddCommand, CommandMetadata, AddCommandVerifiedData> _processor,
+    IDataFactory<AddCommandMessage, CommandMetadata, AddCommandUnverifiedData, AddCommandVerifiedData> _dataFactory,
+    IAuthorizer<AddCommandMessage, CommandMetadata, AddCommandUnverifiedData, AddCommandAuthorizationFailedEvent>
+        _authorizer,
+    IMessageValidator<AddCommandMessage, CommandMetadata, AddCommandUnverifiedData, AddCommandValidationFailedEvent>
+        _validator,
+    IProcessor<AddCommandMessage, CommandMetadata, AddCommandVerifiedData, DataAddedEvent> _processor,
     IEventPublisher _eventPublisher)
-    : ConventionalCommandContainerHandler<Commands.AddCommand, AddCommandUnverifiedData, AddCommandVerifiedData,
-        AddCommandFailedEvent>(_dataQuery, _verifier, _processor, _eventPublisher);
+    : ConventionalCommandContainerHandler<AddCommandMessage, AddCommandUnverifiedData, AddCommandVerifiedData,
+        AddCommandAuthorizationFailedEvent, AddCommandValidationFailedEvent, AddCommandFailedEvent, DataAddedEvent>(
+        _dataFactory, _authorizer, _validator, _processor, _eventPublisher);

@@ -1,13 +1,15 @@
 ﻿using Common.Messaging;
-using FluentValidation.Results;
+using Common.Validation;
 
 namespace Common.Authorization;
 
-public interface IAuthorizer<in TParameters, out TFailedEvent>
+public interface IAuthorizer<TMessage, TMetadata, in TParameters, out TFailedEvent>
+    where TMessage : Message
+    where TMetadata : MessageMetadata
 {
-    Task<ValidationResult> AuthorizeAsync(
+    Task<AuthorizationResult> AuthorizeAsync(
+        MessageContainer<TMessage, TMetadata> container,
         TParameters parameters);
 
-    TFailedEvent CreateFailedEvent(
-        ValidationResult result);
+    TFailedEvent CreateFailedEvent(MessageContainer<TMessage, TMetadata> container, AuthorizationResult result);
 }

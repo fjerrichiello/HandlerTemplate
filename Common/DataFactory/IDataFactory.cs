@@ -1,11 +1,13 @@
 ﻿using Common.Messaging;
 
-namespace Common.DataQuery;
+namespace Common.DataFactory;
 
-public interface IDataQuery<TMessage, TMetadata, TUnverified>
+public interface IDataFactory<TMessage, TMetadata, TUnverified, out TVerified>
     where TMessage : Message
     where TMetadata : MessageMetadata
 {
     Task<TUnverified> GetDataAsync(
         MessageContainer<TMessage, TMetadata> container);
+
+    TVerified GetVerifiedData(TUnverified unverified);
 }

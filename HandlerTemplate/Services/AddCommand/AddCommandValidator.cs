@@ -1,19 +1,22 @@
-﻿using Common.Validation;
+﻿using Common.Messaging;
+using Common.Validation;
 using FluentValidation;
 using FluentValidation.Results;
 using HandlerTemplate.Events.AddCommand;
 
 namespace HandlerTemplate.Services.AddCommand;
 
-public class AddCommandValidator : InternalValidator<AddCommandUnverifiedData, AddCommandValidationFailedEvent>
+public class AddCommandValidator : MessageValidator<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData,
+    AddCommandValidationFailedEvent>
 {
     public AddCommandValidator()
     {
-        RuleFor(x => x.Value1)
+        RuleFor(x => x.UnverifiedData.Value1)
             .GreaterThan(0);
     }
 
-    protected override AddCommandValidationFailedEvent CreateFailedEventInternal(ValidationResult result)
+    public override AddCommandValidationFailedEvent CreateFailedEvent(
+        MessageContainer<Commands.AddCommand, CommandMetadata> container, ValidationResult result)
     {
         throw new NotImplementedException();
     }

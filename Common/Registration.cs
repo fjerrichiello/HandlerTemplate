@@ -1,11 +1,9 @@
 ﻿using Common.Authorization;
-using Common.DataQuery;
-using Common.Mappers;
+using Common.DataFactory;
 using Common.Messaging;
 using Common.Processors;
 using Common.Utils;
 using Common.Validation;
-using Common.Verification;
 using Dumpify;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,12 +13,10 @@ namespace Common;
 public static class Registration
 {
     private static readonly Type GenericMessageContainerHandlerType = typeof(IMessageContainerHandler<,>);
-    private static readonly Type GenericDataQueryType = typeof(IDataQuery<,,>);
-    private static readonly Type GenericVerifierType = typeof(IVerifier<,,,>);
-    private static readonly Type GenericAuthorizerType = typeof(IAuthorizer<,>);
-    private static readonly Type GenericValidatorType = typeof(IInternalValidator<,>);
-    private static readonly Type GenericMapperType = typeof(IMapper<,>);
-    private static readonly Type GenericProcessorType = typeof(IProcessor<,,>);
+    private static readonly Type GenericDataQueryType = typeof(IDataFactory<,,,>);
+    private static readonly Type GenericAuthorizerType = typeof(IAuthorizer<,,,>);
+    private static readonly Type GenericMessageValidatorType = typeof(IMessageValidator<,,,>);
+    private static readonly Type GenericProcessorType = typeof(IProcessor<,,,>);
 
     public static IServiceCollection AddEventHandlersAndNecessaryWork(this IServiceCollection services,
         params Type[] sourceTypes)
@@ -51,20 +47,16 @@ public static class Registration
 
     private static bool IsAllowedType(Type type)
         => IsMessageContainerHandler(type) ||
-           IsDataQuery(type) ||
-           IsVerifier(type) ||
+           IsDataFactory(type) ||
            IsAuthorizer(type) ||
-           IsValidator(type) ||
-           IsMapper(type) ||
+           IsMessageValidator(type) ||
            IsProcessor(type);
 
     private static bool IsAllowedInterfaceType(Type type)
         => IsMessageContainerHandlerInterface(type) ||
-           IsDataQueryInterface(type) ||
-           IsVerifierInterface(type) ||
+           IsDataFactoryInterface(type) ||
            IsAuthorizerInterface(type) ||
-           IsValidatorInterface(type) ||
-           IsMapperInterface(type) ||
+           IsMessageValidatorInterface(type) ||
            IsProcessorInterface(type);
 
     private static bool IsMessageContainerHandler(Type type)
@@ -79,26 +71,15 @@ public static class Registration
     }
 
 
-    private static bool IsDataQuery(Type type)
+    private static bool IsDataFactory(Type type)
     {
-        return !type.IsAbstract && type.GetInterfaces().Any(IsDataQueryInterface);
+        return !type.IsAbstract && type.GetInterfaces().Any(IsDataFactoryInterface);
     }
 
-    private static bool IsDataQueryInterface(Type interfaceType)
+    private static bool IsDataFactoryInterface(Type interfaceType)
     {
         return interfaceType.IsGenericType &&
                interfaceType.GetGenericTypeDefinition() == GenericDataQueryType;
-    }
-
-    private static bool IsVerifier(Type type)
-    {
-        return !type.IsAbstract && type.GetInterfaces().Any(IsVerifierInterface);
-    }
-
-    private static bool IsVerifierInterface(Type interfaceType)
-    {
-        return interfaceType.IsGenericType &&
-               interfaceType.GetGenericTypeDefinition() == GenericVerifierType;
     }
 
     private static bool IsAuthorizer(Type type)
@@ -113,26 +94,15 @@ public static class Registration
     }
 
 
-    private static bool IsValidator(Type type)
+    private static bool IsMessageValidator(Type type)
     {
-        return !type.IsAbstract && type.GetInterfaces().Any(IsValidatorInterface);
+        return !type.IsAbstract && type.GetInterfaces().Any(IsMessageValidatorInterface);
     }
 
-    private static bool IsValidatorInterface(Type interfaceType)
+    private static bool IsMessageValidatorInterface(Type interfaceType)
     {
         return interfaceType.IsGenericType &&
-               interfaceType.GetGenericTypeDefinition() == GenericValidatorType;
-    }
-
-    private static bool IsMapper(Type type)
-    {
-        return !type.IsAbstract && type.GetInterfaces().Any(IsMapperInterface);
-    }
-
-    private static bool IsMapperInterface(Type interfaceType)
-    {
-        return interfaceType.IsGenericType &&
-               interfaceType.GetGenericTypeDefinition() == GenericMapperType;
+               interfaceType.GetGenericTypeDefinition() == GenericMessageValidatorType;
     }
 
     private static bool IsProcessor(Type type)

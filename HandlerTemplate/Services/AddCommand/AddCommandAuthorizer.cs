@@ -1,17 +1,19 @@
 ﻿using Common.Authorization;
-using FluentValidation.Results;
+using Common.Messaging;
 using HandlerTemplate.Events.AddCommand;
 
 namespace HandlerTemplate.Services.AddCommand;
 
-public class AddCommandAuthorizer : Authorizer<AddCommandUnverifiedData, AddCommandAuthorizationFailedEvent>
+public class AddCommandAuthorizer : Authorizer<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData,
+    AddCommandAuthorizationFailedEvent>
 {
     public AddCommandAuthorizer()
     {
     }
 
-    protected override AddCommandAuthorizationFailedEvent CreateFailedEventInternal(ValidationResult result)
+    public override AddCommandAuthorizationFailedEvent CreateFailedEvent(
+        MessageContainer<Commands.AddCommand, CommandMetadata> container, AuthorizationResult result)
     {
-        return new AddCommandAuthorizationFailedEvent(result.ToString());
+        return new AddCommandAuthorizationFailedEvent(result.ErrorMessages);
     }
 }
