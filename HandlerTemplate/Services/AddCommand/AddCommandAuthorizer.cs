@@ -1,5 +1,6 @@
 ﻿using Common.Authorization;
 using Common.Messaging;
+using FluentValidation;
 using HandlerTemplate.Events.AddCommand;
 
 namespace HandlerTemplate.Services.AddCommand;
@@ -9,6 +10,8 @@ public class AddCommandAuthorizer : Authorizer<Commands.AddCommand, CommandMetad
 {
     public AddCommandAuthorizer()
     {
+        RuleFor(x => x.UnverifiedData.Value1)
+            .GreaterThan(0);
     }
 
     public override AddCommandAuthorizationFailedEvent CreateFailedEvent(
