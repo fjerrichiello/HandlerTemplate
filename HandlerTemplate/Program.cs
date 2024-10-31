@@ -22,14 +22,24 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/TestHandler", async (IMessageContainerHandler<AddCommand, CommandMetadata> handler) =>
+app.MapGet("/TestHandler1", async (IMessageContainerHandler<AddCommand, CommandMetadata> handler) =>
     {
         var messageContainer = new MessageContainer<AddCommand, CommandMetadata>(new AddCommand(4),
             new CommandMetadata([], string.Empty, Guid.NewGuid()), new MessageSource(Guid.NewGuid()));
 
         await handler.HandleAsync(messageContainer);
     })
-    .WithName("TestAuth")
+    .WithName("Test 1")
+    .WithOpenApi();
+
+app.MapGet("/TestHandler2", async (IMessageContainerHandler<RemoveCommand, CommandMetadata> handler) =>
+    {
+        var messageContainer = new MessageContainer<RemoveCommand, CommandMetadata>(new RemoveCommand(4),
+            new CommandMetadata([], string.Empty, Guid.NewGuid()), new MessageSource(Guid.NewGuid()));
+
+        await handler.HandleAsync(messageContainer);
+    })
+    .WithName("Test 2")
     .WithOpenApi();
 //
 app.Run();
