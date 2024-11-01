@@ -6,36 +6,22 @@ using FluentValidation.Results;
 
 namespace Common.Authorization;
 
-public abstract class Authorizer<TMessage, TMetadata, TParameters, TFailedEvent> :
-    AbstractValidator<MessageAuthorizerParameters<TMessage, TMetadata, TParameters>>,
-    IAuthorizer<TMessage, TMetadata, TParameters, TFailedEvent>
+public abstract class Authorizer<TMessage, TMessageMetadata, TParameters, TFailedEvent> :
+    AbstractValidator<MessageAuthorizationParameters<TMessage, TMessageMetadata, TParameters>>,
+    IAuthorizer<TMessage, TMessageMetadata, TParameters, TFailedEvent>
     where TMessage : Message
-    where TMetadata : MessageMetadata
+    where TMessageMetadata : MessageMetadata
     where TFailedEvent : Message
 {
-    public abstract IEnumerable<RuleSet> RuleSets { get; set; }
-
-    public async Task<AuthorizationResult> AuthorizeAsync(MessageContainer<TMessage, TMetadata> container,
-        TParameters parameters)
+    public AuthorizationResult Authorize(
+        MessageAuthorizationParameters<TMessage, TMessageMetadata, TParameters> authorizationParameters)
     {
         var authorizationResult = new AuthorizationResult();
 
-        var member = new Member(Guid.NewGuid(), MemberType.Member, true, true, true,
-            DateOnly.FromDateTime(DateTime.UtcNow));
-
-        var test = new StandardAuthorizerParameters(member, ["MSA"], [],
-            DateOnly.FromDateTime(DateTime.UtcNow));
-
-        var defaultAuthorizationResult = RuleSets.Count() != 0
-            ? RuleSets.ValidateRuleSets(test)
-            : new ValidationResult();
-
         var validationResult =
-            await ValidateAsync(
-                new MessageAuthorizerParameters<TMessage, TMetadata, TParameters>(container, parameters));
+            Validate(authorizationParameters);
 
-        var combinedValidationResult = new ValidationResult([defaultAuthorizationResult, validationResult]);
-        if (combinedValidationResult.IsValid)
+        if (validationResult.IsValid)
         {
             return new AuthorizationResult();
         }
@@ -44,6 +30,7 @@ public abstract class Authorizer<TMessage, TMetadata, TParameters, TFailedEvent>
         return authorizationResult;
     }
 
-    public abstract TFailedEvent CreateFailedEvent(MessageContainer<TMessage, TMetadata> container,
+    public abstract TFailedEvent CreateFailedEvent(
+        MessageAuthorizationParameters<TMessage, TMessageMetadata, TParameters> authorizationParameters,
         AuthorizationResult result);
 }

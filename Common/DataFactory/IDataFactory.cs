@@ -2,12 +2,12 @@
 
 namespace Common.DataFactory;
 
-public interface IDataFactory<TMessage, TMetadata, TUnverified, out TVerified>
+public interface IDataFactory<TMessage, TMessageMetadata, TUnverified, out TVerified>
     where TMessage : Message
-    where TMetadata : MessageMetadata
+    where TMessageMetadata : MessageMetadata
 {
     Task<TUnverified> GetDataAsync(
-        MessageContainer<TMessage, TMetadata> container);
+        MessageContainer<TMessage, TMessageMetadata> container);
 
     TVerified GetVerifiedData(TUnverified unverified);
 }

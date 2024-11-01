@@ -11,13 +11,15 @@ public class AddCommandValidator : MessageValidator<Commands.AddCommand, Command
 {
     public AddCommandValidator()
     {
-        RuleFor(x => x.UnverifiedData.Value1)
+        RuleFor(x => x.DataFactoryResult.Value1)
             .GreaterThan(0);
     }
 
     public override AddCommandValidationFailedEvent CreateFailedEvent(
-        MessageContainer<Commands.AddCommand, CommandMetadata> container, ValidationResult result)
+        MessageValidationParameters<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData>
+            validationParameters,
+        ValidationResult validationResult)
     {
-        throw new NotImplementedException();
+        return new AddCommandValidationFailedEvent(validationResult.ToDictionary().Keys.ToString()!);
     }
 }

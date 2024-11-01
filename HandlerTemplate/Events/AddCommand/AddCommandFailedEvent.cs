@@ -2,4 +2,4 @@
 
 namespace HandlerTemplate.Events.AddCommand;
 
-public record AddCommandFailedEvent : FailedMessage;
+public record AddCommandFailedEvent(string Reason) : Message;

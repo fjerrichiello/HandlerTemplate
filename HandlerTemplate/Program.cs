@@ -10,7 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddCommandHandler));
+builder.Services.AddEventHandlersAndNecessaryWork(typeof(AddCommandProcessor));
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,26 +22,29 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/TestHandler1", async (IMessageContainerHandler<AddCommand, CommandMetadata> handler) =>
+app.MapGet("/TestHandler1", async (IServiceProvider _serviceProvider) =>
     {
         var messageContainer = new MessageContainer<AddCommand, CommandMetadata>(new AddCommand(4),
             new CommandMetadata([], string.Empty, Guid.NewGuid()), new MessageSource(Guid.NewGuid()));
+
+        var handler =
+            _serviceProvider.GetRequiredKeyedService<IMessageContainerHandler<AddCommand, CommandMetadata>>(
+                nameof(AddCommand));
 
         await handler.HandleAsync(messageContainer);
     })
     .WithName("Test 1")
     .WithOpenApi();
-
-app.MapGet("/TestHandler2", async (IMessageContainerHandler<RemoveCommand, CommandMetadata> handler) =>
-    {
-        var messageContainer = new MessageContainer<RemoveCommand, CommandMetadata>(new RemoveCommand(4),
-            new CommandMetadata([], string.Empty, Guid.NewGuid()), new MessageSource(Guid.NewGuid()));
-
-        await handler.HandleAsync(messageContainer);
-    })
-    .WithName("Test 2")
-    .WithOpenApi();
 //
+// app.MapGet("/TestHandler2", async (IMessageContainerHandler<RemoveCommand, CommandMetadata> handler) =>
+//     {
+//        
+//
+//         await handler.HandleAsync(messageContainer);
+//     })
+//     .WithName("Test 2")
+//     .WithOpenApi();
+// //
 app.Run();
 
 namespace HandlerTemplate

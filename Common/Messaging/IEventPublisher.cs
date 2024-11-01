@@ -2,7 +2,7 @@
 
 public interface IEventPublisher
 {
-    Task PublishAsync<TCommand, TMetadata>(MessageContainer<TCommand, TMetadata> container, Message message)
+    Task PublishAsync<TCommand, TMessageMetadata>(MessageContainer<TCommand, TMessageMetadata> container, Message message)
         where TCommand : Message
-        where TMetadata : MessageMetadata;
+        where TMessageMetadata : MessageMetadata;
 }

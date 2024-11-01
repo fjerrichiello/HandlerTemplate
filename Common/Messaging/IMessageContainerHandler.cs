@@ -1,9 +1,9 @@
 ﻿namespace Common.Messaging;
 
-public interface IMessageContainerHandler<TMessage, TMetadata>
+public interface IMessageContainerHandler<TMessage, TMessageMetadata>
     where TMessage : Message
-    where TMetadata : MessageMetadata
+    where TMessageMetadata : MessageMetadata
 {
     Task HandleAsync(
-        MessageContainer<TMessage, TMetadata> container);
+        MessageContainer<TMessage, TMessageMetadata> container);
 }

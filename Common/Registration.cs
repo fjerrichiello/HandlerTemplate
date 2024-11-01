@@ -1,4 +1,5 @@
-﻿using Common.Authorization;
+﻿using System.Reflection;
+using Common.Authorization;
 using Common.DataFactory;
 using Common.Messaging;
 using Common.Processors;
@@ -13,10 +14,14 @@ namespace Common;
 public static class Registration
 {
     private static readonly Type GenericMessageContainerHandlerType = typeof(IMessageContainerHandler<,>);
+
+    private static readonly Type GenericConventionalMessageContainerHandlerType =
+        typeof(ConventionalCommandContainerHandler<,,,,,,>);
+
     private static readonly Type GenericDataQueryType = typeof(IDataFactory<,,,>);
     private static readonly Type GenericAuthorizerType = typeof(IAuthorizer<,,,>);
     private static readonly Type GenericMessageValidatorType = typeof(IMessageValidator<,,,>);
-    private static readonly Type GenericProcessorType = typeof(IProcessor<,,,>);
+    private static readonly Type GenericProcessorType = typeof(IProcessor<,,,,>);
 
     public static IServiceCollection AddEventHandlersAndNecessaryWork(this IServiceCollection services,
         params Type[] sourceTypes)
@@ -28,15 +33,31 @@ public static class Registration
             .Where(IsAllowedType)
             .SelectMany(usageType => usageType.GetInterfaces().Where(IsAllowedInterfaceType).Select(x => new
             {
+                MessageType = x.GetGenericArguments().First(),
+                MessageMetadataType = x.GetGenericArguments().ElementAt(1),
                 UsageType = usageType,
                 UsageInterfaceType = x
-            })).ToList();
+            }))
+            .GroupBy(x => x.MessageType)
+            .ToDictionary(group => group.Key, group => group.ToList());
 
         registrations.Dump();
 
-        foreach (var registration in registrations)
+        foreach (var command in registrations.Keys)
         {
-            services.AddScoped(registration.UsageInterfaceType, registration.UsageType);
+            var handlerDependencies = registrations[command];
+
+            var genericParameters = new HandlerParameters();
+
+            foreach (var handlerDependency in handlerDependencies)
+            {
+                services.AddScoped(handlerDependency.UsageInterfaceType, handlerDependency.UsageType);
+
+                genericParameters.SetType(handlerDependency.UsageInterfaceType);
+            }
+
+            services.AddKeyedScoped(genericParameters.GetGenericInterfaceType(), genericParameters.GetMessageName(),
+                genericParameters.GetGenericType());
         }
 
         services.AddScoped<IEventPublisher, EventPublisher>();
@@ -44,6 +65,69 @@ public static class Registration
         return services;
     }
 
+    private record HandlerParameters
+    {
+        public string GetMessageName() => MessageType.Name;
+
+        public Type GetGenericInterfaceType()
+            => GenericMessageContainerHandlerType.MakeGenericType(MessageType,
+                MessageMetadataType);
+
+        public Type GetGenericType()
+            => GenericConventionalMessageContainerHandlerType.MakeGenericType(
+                MessageType,
+                UnverifiedDataType,
+                VerifiedDataType,
+                AuthorizationFailedEventType,
+                ValidationFailedEventType,
+                FailedEventType,
+                SuccessEventType);
+
+        private Type MessageType { get; set; }
+
+        private Type MessageMetadataType { get; set; }
+
+        private Type UnverifiedDataType { get; set; }
+
+        private Type VerifiedDataType { get; set; }
+
+        private Type AuthorizationFailedEventType { get; set; }
+
+        private Type ValidationFailedEventType { get; set; }
+
+        private Type FailedEventType { get; set; }
+
+        private Type SuccessEventType { get; set; }
+
+        public void SetType(Type type)
+        {
+            var genericArguments = type.GetGenericArguments();
+
+            if (IsDataFactoryInterface(type))
+            {
+                UnverifiedDataType = genericArguments[^2];
+                VerifiedDataType = genericArguments.Last();
+            }
+
+            if (IsAuthorizerInterface(type))
+            {
+                AuthorizationFailedEventType = genericArguments.Last();
+            }
+
+            if (IsMessageValidatorInterface(type))
+            {
+                ValidationFailedEventType = genericArguments.Last();
+            }
+
+            if (IsProcessorInterface(type))
+            {
+                MessageType = genericArguments.First();
+                MessageMetadataType = genericArguments.Skip(1).First();
+                FailedEventType = genericArguments[^2];
+                SuccessEventType = genericArguments.Last();
+            }
+        }
+    }
 
     private static bool IsAllowedType(Type type)
         => IsMessageContainerHandler(type) ||

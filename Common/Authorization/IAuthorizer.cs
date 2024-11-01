@@ -2,13 +2,14 @@
 
 namespace Common.Authorization;
 
-public interface IAuthorizer<TMessage, TMetadata, in TParameters, out TFailedEvent>
+public interface IAuthorizer<TMessage, TMessageMetadata, TParameters, out TFailedEvent>
     where TMessage : Message
-    where TMetadata : MessageMetadata
+    where TMessageMetadata : MessageMetadata
 {
-    Task<AuthorizationResult> AuthorizeAsync(
-        MessageContainer<TMessage, TMetadata> container,
-        TParameters parameters);
+    AuthorizationResult Authorize(
+        MessageAuthorizationParameters<TMessage, TMessageMetadata, TParameters> authorizationParameters);
 
-    TFailedEvent CreateFailedEvent(MessageContainer<TMessage, TMetadata> container, AuthorizationResult result);
+    TFailedEvent CreateFailedEvent(
+        MessageAuthorizationParameters<TMessage, TMessageMetadata, TParameters> authorizationParameters,
+        AuthorizationResult result);
 }

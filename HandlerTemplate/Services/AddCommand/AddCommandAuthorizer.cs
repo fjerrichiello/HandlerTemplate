@@ -15,15 +15,10 @@ public class AddCommandAuthorizer : Authorizer<Commands.AddCommand, CommandMetad
             .GreaterThan(0);
     }
 
-    public override IEnumerable<RuleSet> RuleSets { get; set; } =
-    [
-        Common.Authorization.Standard.RuleSet.HasEffectiveMemberPermissions,
-        Common.Authorization.Standard.RuleSet.HasEffectiveNonMemberPermissions,
-        Common.Authorization.Standard.RuleSet.HasNonEffectiveMemberPermissions
-    ];
-
     public override AddCommandAuthorizationFailedEvent CreateFailedEvent(
-        MessageContainer<Commands.AddCommand, CommandMetadata> container, AuthorizationResult result)
+        MessageAuthorizationParameters<Commands.AddCommand, CommandMetadata, AddCommandUnverifiedData>
+            authorizationParameters,
+        AuthorizationResult result)
     {
         return new AddCommandAuthorizationFailedEvent(result.ErrorMessages);
     }

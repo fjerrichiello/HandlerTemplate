@@ -4,19 +4,14 @@ using FluentValidation.Results;
 
 namespace Common.Validation;
 
-public abstract class MessageValidator<TMessage, TMessageMetadata, TParameters, TFailedEvent> :
-    AbstractValidator<MessageValidatorParameters<TMessage, TMessageMetadata, TParameters>>,
-    IMessageValidator<TMessage, TMessageMetadata, TParameters, TFailedEvent>
+public abstract class MessageValidator<TMessage, TMessageMetadata, TUnverified, TValidationFailedEvent>
+    : AbstractValidator<MessageValidationParameters<TMessage, TMessageMetadata, TUnverified>>,
+        IMessageValidator<TMessage, TMessageMetadata, TUnverified, TValidationFailedEvent>
     where TMessage : Message
     where TMessageMetadata : MessageMetadata
+    where TValidationFailedEvent : Message
 {
-    public async Task<ValidationResult> ValidateAsync(MessageContainer<TMessage, TMessageMetadata> container,
-        TParameters parameters)
-    {
-        return await base.ValidateAsync(
-            new MessageValidatorParameters<TMessage, TMessageMetadata, TParameters>(container, parameters));
-    }
-
-    public abstract TFailedEvent CreateFailedEvent(MessageContainer<TMessage, TMessageMetadata> container,
-        ValidationResult result);
+    public abstract TValidationFailedEvent CreateFailedEvent(
+        MessageValidationParameters<TMessage, TMessageMetadata, TUnverified> validationParameters,
+        ValidationResult validationResult);
 }

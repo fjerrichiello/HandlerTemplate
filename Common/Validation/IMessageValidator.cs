@@ -1,15 +1,23 @@
 ﻿using Common.Messaging;
+using FluentValidation;
 using FluentValidation.Results;
 
 namespace Common.Validation;
 
-public interface IMessageValidator<TMessage, TMetadata, in TParameters, out TFailedEvent>
+public interface IMessageValidator<
+    TMessage,
+    TMessageMetadata,
+    TDataFactoryResult,
+    TValidationFailedEvent>
+    : IValidator<MessageValidationParameters<
+        TMessage,
+        TMessageMetadata,
+        TDataFactoryResult>>
     where TMessage : Message
-    where TMetadata : MessageMetadata
+    where TMessageMetadata : MessageMetadata
+    where TValidationFailedEvent : Message
 {
-    Task<ValidationResult> ValidateAsync(
-        MessageContainer<TMessage, TMetadata> container,
-        TParameters parameters);
-
-    TFailedEvent CreateFailedEvent(MessageContainer<TMessage, TMetadata> container, ValidationResult result);
+    TValidationFailedEvent CreateFailedEvent(
+        MessageValidationParameters<TMessage, TMessageMetadata, TDataFactoryResult> validationParameters,
+        ValidationResult validationResult);
 }
