@@ -7,8 +7,7 @@ namespace Common.Validation;
 public interface IMessageValidator<
     TMessage,
     TMessageMetadata,
-    TDataFactoryResult,
-    TValidationFailedEvent>
+    TDataFactoryResult, out TValidationFailedEvent>
     : IValidator<MessageValidationParameters<
         TMessage,
         TMessageMetadata,
